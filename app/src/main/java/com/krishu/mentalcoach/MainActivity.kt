@@ -6,10 +6,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-
 import android.provider.Settings
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -61,12 +62,13 @@ class MainActivity : AppCompatActivity() {
         val checkCurrentAppButton = findViewById<Button>(R.id.checkCurrentAppButton)
         val startMonitoringButton = findViewById<Button>(R.id.startMonitoringButton)
         val stopMonitoringButton = findViewById<Button>(R.id.stopMonitoringButton)
-        val testNotificationButton = findViewById<Button>(R.id.testNotificationButton)
         val startServiceMonitoringButton = findViewById<Button>(R.id.startServiceMonitoringButton)
         val stopServiceMonitoringButton = findViewById<Button>(R.id.stopServiceMonitoringButton)
+        val testNotificationButton = findViewById<Button>(R.id.testNotificationButton)
 
         val loadInstalledAppsButton = findViewById<Button>(R.id.loadInstalledAppsButton)
         val installedAppsText = findViewById<TextView>(R.id.installedAppsText)
+        val installedAppsListView = findViewById<ListView>(R.id.installedAppsListView)
 
         val distractionApps = loadDistractionApps()
         updateDistractionListText(distractionListText, distractionApps)
@@ -89,22 +91,6 @@ class MainActivity : AppCompatActivity() {
 
         emergencyButton.setOnClickListener {
             coachMessageText.text = coachMessageGenerator.getEmergencyCommand()
-        }
-
-        loadInstalledAppsButton.setOnClickListener {
-            val installedApps = installedAppReader.getInstalledApps()
-
-            if (installedApps.isEmpty()) {
-                installedAppsText.text = "No installed apps found."
-                coachMessageText.text = "Could not load installed apps."
-                return@setOnClickListener
-            }
-
-            installedAppsText.text = installedApps.joinToString(separator = "\n\n") { app ->
-                "${app.appName}\n${app.packageName}"
-            }
-
-            coachMessageText.text = "Installed apps loaded. Copy the package name of any distraction app."
         }
 
         quickResetButton.setOnClickListener {
@@ -181,34 +167,61 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        grantUsageAccessButton.setOnClickListener {
-            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-            startActivity(intent)
-        }
+        loadInstalledAppsButton.setOnClickListener {
+            val installedApps = installedAppReader.getInstalledApps()
 
-        startServiceMonitoringButton.setOnClickListener {
-            if (!appUsageMonitor.hasUsageAccess()) {
-                coachMessageText.text = "Grant Usage Access before starting background monitoring."
-                Toast.makeText(this, "Usage Access needed first", Toast.LENGTH_LONG).show()
+            if (installedApps.isEmpty()) {
+                installedAppsText.text = "No installed apps found."
+                coachMessageText.text = "Could not load installed apps."
                 return@setOnClickListener
             }
 
-            val serviceIntent = Intent(this, DistractionMonitoringService::class.java)
+            installedAppsText.text = "Tap an app below to add it to your distraction list."
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent)
-            } else {
-                startService(serviceIntent)
+            val appDisplayList = installedApps.map { app ->
+                "${app.appName}\n${app.packageName}"
             }
 
-            coachMessageText.text = "Background monitoring started."
+            val adapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_list_item_1,
+                appDisplayList
+            )
+
+            installedAppsListView.adapter = adapter
+
+            installedAppsListView.setOnItemClickListener { _, _, position, _ ->
+                val selectedApp = installedApps[position]
+                val packageName = selectedApp.packageName
+
+                if (!distractionApps.contains(packageName)) {
+                    distractionApps.add(packageName)
+                    saveDistractionApps(distractionApps)
+                    updateDistractionListText(distractionListText, distractionApps)
+
+                    coachMessageText.text = "${selectedApp.appName} added to distraction list."
+
+                    Toast.makeText(
+                        this,
+                        "Added: ${selectedApp.appName}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    coachMessageText.text =
+                        "${selectedApp.appName} is already on the distraction list."
+
+                    Toast.makeText(
+                        this,
+                        "Already added",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
 
-        stopServiceMonitoringButton.setOnClickListener {
-            val serviceIntent = Intent(this, DistractionMonitoringService::class.java)
-            stopService(serviceIntent)
-
-            coachMessageText.text = "Background monitoring stopped."
+        grantUsageAccessButton.setOnClickListener {
+            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+            startActivity(intent)
         }
 
         checkCurrentAppButton.setOnClickListener {
@@ -224,7 +237,8 @@ class MainActivity : AppCompatActivity() {
             val recentPackages = appUsageMonitor.getRecentExternalPackageNames()
 
             if (recentPackages.isEmpty()) {
-                val message = "No recent external apps detected. Open YouTube or Chrome for 10 seconds, then return."
+                val message =
+                    "No recent external apps detected. Open YouTube or Chrome for 10 seconds, then return."
                 coachMessageText.text = message
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show()
                 return@setOnClickListener
@@ -269,6 +283,31 @@ class MainActivity : AppCompatActivity() {
             coachMessageText.text = "Monitoring stopped."
         }
 
+        startServiceMonitoringButton.setOnClickListener {
+            if (!appUsageMonitor.hasUsageAccess()) {
+                coachMessageText.text = "Grant Usage Access before starting background monitoring."
+                Toast.makeText(this, "Usage Access needed first", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            val serviceIntent = Intent(this, DistractionMonitoringService::class.java)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
+
+            coachMessageText.text = "Background monitoring started."
+        }
+
+        stopServiceMonitoringButton.setOnClickListener {
+            val serviceIntent = Intent(this, DistractionMonitoringService::class.java)
+            stopService(serviceIntent)
+
+            coachMessageText.text = "Background monitoring stopped."
+        }
+
         testNotificationButton.setOnClickListener {
             val message = coachMessageGenerator.getDistractionWarning()
             notificationHelper.showDisciplineNotification(message)
@@ -296,9 +335,6 @@ class MainActivity : AppCompatActivity() {
             }
         )
     }
-
-
-
 
     private fun saveDistractionApps(distractionApps: List<String>) {
         val sharedPreferences = getSharedPreferences("mental_coach_prefs", Context.MODE_PRIVATE)

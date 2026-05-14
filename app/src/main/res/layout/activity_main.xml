@@ -159,6 +159,15 @@
             android:textSize="14sp"
             android:layout_marginTop="8dp" />
 
+        <ListView
+            android:id="@+id/installedAppsListView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="8dp"
+            android:background="#1E1E1E"
+            android:divider="#444444"
+            android:dividerHeight="1dp" />
+
         <TextView
             android:id="@+id/distractionListSectionTitle"
             android:layout_width="match_parent"
