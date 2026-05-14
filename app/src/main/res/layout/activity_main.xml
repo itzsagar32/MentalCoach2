@@ -205,6 +205,20 @@
             android:text="Stop Monitoring"
             android:layout_marginTop="8dp" />
 
+        <Button
+            android:id="@+id/startServiceMonitoringButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start Background Monitoring"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/stopServiceMonitoringButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stop Background Monitoring"
+            android:layout_marginTop="8dp" />
+
         <TextView
             android:id="@+id/distractionListText"
             android:layout_width="match_parent"

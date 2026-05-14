@@ -60,6 +60,8 @@ class MainActivity : AppCompatActivity() {
         val startMonitoringButton = findViewById<Button>(R.id.startMonitoringButton)
         val stopMonitoringButton = findViewById<Button>(R.id.stopMonitoringButton)
         val testNotificationButton = findViewById<Button>(R.id.testNotificationButton)
+        val startServiceMonitoringButton = findViewById<Button>(R.id.startServiceMonitoringButton)
+        val stopServiceMonitoringButton = findViewById<Button>(R.id.stopServiceMonitoringButton)
 
         val distractionApps = loadDistractionApps()
         updateDistractionListText(distractionListText, distractionApps)
@@ -161,6 +163,31 @@ class MainActivity : AppCompatActivity() {
         grantUsageAccessButton.setOnClickListener {
             val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
             startActivity(intent)
+        }
+
+        startServiceMonitoringButton.setOnClickListener {
+            if (!appUsageMonitor.hasUsageAccess()) {
+                coachMessageText.text = "Grant Usage Access before starting background monitoring."
+                Toast.makeText(this, "Usage Access needed first", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            val serviceIntent = Intent(this, DistractionMonitoringService::class.java)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
+
+            coachMessageText.text = "Background monitoring started."
+        }
+
+        stopServiceMonitoringButton.setOnClickListener {
+            val serviceIntent = Intent(this, DistractionMonitoringService::class.java)
+            stopService(serviceIntent)
+
+            coachMessageText.text = "Background monitoring stopped."
         }
 
         checkCurrentAppButton.setOnClickListener {
