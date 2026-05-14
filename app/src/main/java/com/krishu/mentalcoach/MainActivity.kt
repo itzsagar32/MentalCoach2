@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         val workoutButton = findViewById<Button>(R.id.workoutButton)
         val emergencyButton = findViewById<Button>(R.id.emergencyButton)
         val testNotificationButton = findViewById<Button>(R.id.testNotificationButton)
+        val startFocusTimerButton = findViewById<Button>(R.id.startFocusTimerButton)
 
         generalButton.setOnClickListener {
             coachMessageText.text = coachMessageGenerator.getGeneralCommand()
@@ -55,6 +58,16 @@ class MainActivity : AppCompatActivity() {
         testNotificationButton.setOnClickListener {
             val message = coachMessageGenerator.getDistractionWarning()
             notificationHelper.showDisciplineNotification(message)
+        }
+
+        startFocusTimerButton.setOnClickListener {
+            coachMessageText.text = "Focus timer started. Hold the line for 10 seconds."
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                val message = "Timer complete. Good. Now extend that discipline."
+                coachMessageText.text = message
+                notificationHelper.showDisciplineNotification(message)
+            }, 10_000)
         }
     }
 
