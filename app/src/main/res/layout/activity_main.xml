@@ -56,6 +56,13 @@
             android:text="Emergency Reset"
             android:layout_marginTop="12dp" />
 
+        <Button
+            android:id="@+id/testNotificationButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Test Notification"
+            android:layout_marginTop="12dp" />
+
     </LinearLayout>
 
 </ScrollView>
