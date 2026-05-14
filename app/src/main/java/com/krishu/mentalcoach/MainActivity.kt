@@ -7,13 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
-    private val coachCommands = listOf(
-        "Stand up straight. Discipline starts now.",
-        "Stop negotiating with laziness.",
-        "One focused hour. No excuses.",
-        "You are not tired. You are untrained.",
-        "Put the phone down and execute."
-    )
+    private val coachMessageGenerator = CoachMessageGenerator()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         val getOrdersButton = findViewById<Button>(R.id.getOrdersButton)
 
         getOrdersButton.setOnClickListener {
-            coachMessageText.text = coachCommands.random()
+            coachMessageText.text = coachMessageGenerator.getRandomCommand()
         }
     }
 }
