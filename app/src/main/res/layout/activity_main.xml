@@ -2,35 +2,74 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212">
+    android:background="#101010">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center"
-        android:padding="24dp">
+        android:padding="20dp">
 
         <TextView
-            android:id="@+id/coachMessageText"
+            android:id="@+id/appTitleText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ready for orders, soldier."
+            android:text="Mental Coach"
             android:textColor="#FFFFFF"
-            android:textSize="24sp"
+            android:textSize="30sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="6dp" />
 
         <TextView
-            android:id="@+id/timerText"
+            android:id="@+id/appSubtitleText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No active timer"
+            android:text="Discipline. Focus. Execution."
             android:textColor="#BDBDBD"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:gravity="center"
             android:layout_marginBottom="24dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="18dp"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:id="@+id/coachMessageText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ready for orders, soldier."
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="14dp" />
+
+            <TextView
+                android:id="@+id/timerText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No active timer"
+                android:textColor="#BDBDBD"
+                android:textSize="18sp"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/coachSectionTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Coach Commands"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp" />
 
         <Button
             android:id="@+id/generalButton"
@@ -43,63 +82,83 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Distraction Warning"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="8dp" />
 
         <Button
             android:id="@+id/studyButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Study Command"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="8dp" />
 
         <Button
             android:id="@+id/workoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Workout Command"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="8dp" />
 
         <Button
             android:id="@+id/emergencyButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Emergency Reset"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="8dp" />
 
-        <Button
-            android:id="@+id/testNotificationButton"
+        <TextView
+            android:id="@+id/focusSectionTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Test Notification"
-            android:layout_marginTop="12dp" />
+            android:text="Focus Timer"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="10dp" />
 
         <Button
             android:id="@+id/quickResetButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Quick Reset - 10 Seconds"
-            android:layout_marginTop="12dp" />
+            android:text="Quick Reset - 10 Seconds" />
 
         <Button
             android:id="@+id/miniFocusButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Mini Focus - 1 Minute"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="8dp" />
 
         <Button
             android:id="@+id/deepFocusButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Deep Focus - 25 Minutes"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="8dp" />
 
         <Button
             android:id="@+id/cancelTimerButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Cancel Timer"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/toolsSectionTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tools"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/testNotificationButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Test Notification" />
 
     </LinearLayout>
 
