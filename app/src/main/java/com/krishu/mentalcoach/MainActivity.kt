@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var notificationHelper: CoachNotificationHelper
     private lateinit var appUsageMonitor: AppUsageMonitor
     private lateinit var distractionMonitorManager: DistractionMonitorManager
+    private lateinit var installedAppReader: InstalledAppReader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +36,7 @@ class MainActivity : AppCompatActivity() {
 
         appUsageMonitor = AppUsageMonitor(this)
         distractionMonitorManager = DistractionMonitorManager(appUsageMonitor)
+        installedAppReader = InstalledAppReader(this)
 
         val coachMessageText = findViewById<TextView>(R.id.coachMessageText)
         val timerText = findViewById<TextView>(R.id.timerText)
@@ -63,6 +65,9 @@ class MainActivity : AppCompatActivity() {
         val startServiceMonitoringButton = findViewById<Button>(R.id.startServiceMonitoringButton)
         val stopServiceMonitoringButton = findViewById<Button>(R.id.stopServiceMonitoringButton)
 
+        val loadInstalledAppsButton = findViewById<Button>(R.id.loadInstalledAppsButton)
+        val installedAppsText = findViewById<TextView>(R.id.installedAppsText)
+
         val distractionApps = loadDistractionApps()
         updateDistractionListText(distractionListText, distractionApps)
 
@@ -84,6 +89,22 @@ class MainActivity : AppCompatActivity() {
 
         emergencyButton.setOnClickListener {
             coachMessageText.text = coachMessageGenerator.getEmergencyCommand()
+        }
+
+        loadInstalledAppsButton.setOnClickListener {
+            val installedApps = installedAppReader.getInstalledApps()
+
+            if (installedApps.isEmpty()) {
+                installedAppsText.text = "No installed apps found."
+                coachMessageText.text = "Could not load installed apps."
+                return@setOnClickListener
+            }
+
+            installedAppsText.text = installedApps.joinToString(separator = "\n\n") { app ->
+                "${app.appName}\n${app.packageName}"
+            }
+
+            coachMessageText.text = "Installed apps loaded. Copy the package name of any distraction app."
         }
 
         quickResetButton.setOnClickListener {

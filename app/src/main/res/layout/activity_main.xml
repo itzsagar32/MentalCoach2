@@ -143,6 +143,22 @@
             android:text="Cancel Timer"
             android:layout_marginTop="8dp" />
 
+        <Button
+            android:id="@+id/loadInstalledAppsButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Load Installed Apps"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/installedAppsText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Installed apps will appear here."
+            android:textColor="#BDBDBD"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp" />
+
         <TextView
             android:id="@+id/distractionListSectionTitle"
             android:layout_width="match_parent"
