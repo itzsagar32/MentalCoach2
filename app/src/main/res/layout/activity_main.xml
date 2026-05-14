@@ -22,6 +22,16 @@
             android:gravity="center"
             android:layout_marginBottom="24dp" />
 
+        <TextView
+            android:id="@+id/timerText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No active timer"
+            android:textColor="#BDBDBD"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
         <Button
             android:id="@+id/generalButton"
             android:layout_width="match_parent"
@@ -64,10 +74,31 @@
             android:layout_marginTop="12dp" />
 
         <Button
-            android:id="@+id/startFocusTimerButton"
+            android:id="@+id/quickResetButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Start 10 Second Focus Timer"
+            android:text="Quick Reset - 10 Seconds"
+            android:layout_marginTop="12dp" />
+
+        <Button
+            android:id="@+id/miniFocusButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mini Focus - 1 Minute"
+            android:layout_marginTop="12dp" />
+
+        <Button
+            android:id="@+id/deepFocusButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Deep Focus - 25 Minutes"
+            android:layout_marginTop="12dp" />
+
+        <Button
+            android:id="@+id/cancelTimerButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cancel Timer"
             android:layout_marginTop="12dp" />
 
     </LinearLayout>
