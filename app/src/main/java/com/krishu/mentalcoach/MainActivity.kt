@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -14,9 +13,8 @@ import androidx.core.content.ContextCompat
 class MainActivity : AppCompatActivity() {
 
     private val coachMessageGenerator = CoachMessageGenerator()
+    private val focusTimerManager = FocusTimerManager()
     private lateinit var notificationHelper: CoachNotificationHelper
-
-    private var currentTimer: CountDownTimer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         quickResetButton.setOnClickListener {
-            startFocusTimer(
+            startFocusMode(
                 coachMessageText = coachMessageText,
                 timerText = timerText,
                 modeName = "Quick Reset",
@@ -76,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         miniFocusButton.setOnClickListener {
-            startFocusTimer(
+            startFocusMode(
                 coachMessageText = coachMessageText,
                 timerText = timerText,
                 modeName = "Mini Focus",
@@ -85,7 +83,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         deepFocusButton.setOnClickListener {
-            startFocusTimer(
+            startFocusMode(
                 coachMessageText = coachMessageText,
                 timerText = timerText,
                 modeName = "Deep Focus",
@@ -94,54 +92,33 @@ class MainActivity : AppCompatActivity() {
         }
 
         cancelTimerButton.setOnClickListener {
-            cancelFocusTimer(
-                coachMessageText = coachMessageText,
-                timerText = timerText
-            )
+            focusTimerManager.cancelTimer {
+                coachMessageText.text = "Timer cancelled. Regroup and restart with discipline."
+                timerText.text = "No active timer"
+            }
         }
     }
 
-    private fun startFocusTimer(
+    private fun startFocusMode(
         coachMessageText: TextView,
         timerText: TextView,
         modeName: String,
         durationMillis: Long
     ) {
-        currentTimer?.cancel()
-
         coachMessageText.text = "$modeName started. Hold the line."
 
-        currentTimer = object : CountDownTimer(durationMillis, 1000) {
-
-            override fun onTick(millisUntilFinished: Long) {
-                val totalSeconds = millisUntilFinished / 1000
-                val minutes = totalSeconds / 60
-                val seconds = totalSeconds % 60
-
-                timerText.text = "Time left: %02d:%02d".format(minutes, seconds)
-            }
-
-            override fun onFinish() {
-                val message = "$modeName complete. Good. Now extend that discipline."
-                coachMessageText.text = message
+        focusTimerManager.startTimer(
+            modeName = modeName,
+            durationMillis = durationMillis,
+            onTickUpdate = { timeText ->
+                timerText.text = timeText
+            },
+            onFinish = { finishMessage ->
+                coachMessageText.text = finishMessage
                 timerText.text = "Timer complete"
-                notificationHelper.showDisciplineNotification(message)
-
-                currentTimer = null
+                notificationHelper.showDisciplineNotification(finishMessage)
             }
-
-        }.start()
-    }
-
-    private fun cancelFocusTimer(
-        coachMessageText: TextView,
-        timerText: TextView
-    ) {
-        currentTimer?.cancel()
-        currentTimer = null
-
-        coachMessageText.text = "Timer cancelled. Regroup and restart with discipline."
-        timerText.text = "No active timer"
+        )
     }
 
     private fun requestNotificationPermissionIfNeeded() {
