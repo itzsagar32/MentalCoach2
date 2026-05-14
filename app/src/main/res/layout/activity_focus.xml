@@ -1,28 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
     android:background="#0B0F14">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="⏱️ Focus and Credits"
-        android:textColor="#FFFFFF"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:gravity="center" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Focus timer and leisure credit system will move here."
-        android:textColor="#9EABB8"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginTop="12dp" />
+        <TextView
+            android:id="@+id/focusTitleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Focus and Credits"
+            android:textColor="#FFFFFF"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginTop="10dp" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/focusSubtitleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Earn leisure through focused work."
+            android:textColor="#9EABB8"
+            android:textSize="15sp"
+            android:gravity="center"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="20dp" />
+
+        <LinearLayout
+            android:id="@+id/focusStatsCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#151B23"
+            android:padding="18dp"
+            android:layout_marginBottom="22dp">
+
+            <TextView
+                android:id="@+id/focusMessageText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Choose a focus mission."
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/focusTimerText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No active timer"
+                android:textColor="#9EABB8"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/focusLeisureCreditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Leisure Credits: 00:00"
+                android:textColor="#4CAF50"
+                android:textSize="19sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/focusModesTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Focus Missions"
+            android:textColor="#FFFFFF"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/focusQuickResetButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Quick Reset - 10 Seconds"
+            android:textAllCaps="false"
+            android:backgroundTint="#37474F"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/focusMiniButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mini Focus - 1 Minute"
+            android:textAllCaps="false"
+            android:backgroundTint="#1B5E20"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="10dp" />
+
+        <Button
+            android:id="@+id/focusDeepButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Deep Focus - 25 Minutes"
+            android:textAllCaps="false"
+            android:backgroundTint="#0D47A1"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="10dp" />
+
+        <Button
+            android:id="@+id/focusCancelButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cancel Timer"
+            android:textAllCaps="false"
+            android:backgroundTint="#B71C1C"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="10dp" />
+
+        <TextView
+            android:id="@+id/focusRuleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rule: every 30 minutes of focused work earns 15 minutes of leisure."
+            android:textColor="#9EABB8"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_marginTop="22dp"
+            android:layout_marginBottom="20dp" />
+
+    </LinearLayout>
+
+</ScrollView>
