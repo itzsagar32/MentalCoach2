@@ -178,6 +178,33 @@
             android:text="Remove Distraction"
             android:layout_marginTop="8dp" />
 
+        <Button
+            android:id="@+id/grantUsageAccessButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Grant Usage Access" />
+
+        <Button
+            android:id="@+id/checkCurrentAppButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Check Current App"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/startMonitoringButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start Monitoring"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/stopMonitoringButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stop Monitoring"
+            android:layout_marginTop="8dp" />
+
         <TextView
             android:id="@+id/distractionListText"
             android:layout_width="match_parent"
