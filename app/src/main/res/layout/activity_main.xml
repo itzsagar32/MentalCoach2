@@ -73,6 +73,17 @@
                 android:textSize="18sp"
                 android:gravity="center" />
 
+            <TextView
+                android:id="@+id/leisureCreditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🎮 Leisure Credits: 00:00"
+                android:textColor="#4CAF50"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginTop="12dp" />
+
         </LinearLayout>
 
         <!-- COACH COMMANDS -->

@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appUsageMonitor: AppUsageMonitor
     private lateinit var distractionMonitorManager: DistractionMonitorManager
     private lateinit var installedAppReader: InstalledAppReader
+    private lateinit var leisureCreditManager: LeisureCreditManager
 
     private var allInstalledApps = listOf<InstalledAppInfo>()
 
@@ -42,9 +43,14 @@ class MainActivity : AppCompatActivity() {
         appUsageMonitor = AppUsageMonitor(this)
         distractionMonitorManager = DistractionMonitorManager(appUsageMonitor)
         installedAppReader = InstalledAppReader(this)
+        leisureCreditManager = LeisureCreditManager(this)
 
         val coachMessageText = findViewById<TextView>(R.id.coachMessageText)
         val timerText = findViewById<TextView>(R.id.timerText)
+        val leisureCreditText = findViewById<TextView>(R.id.leisureCreditText)
+        val monitoringStatusText = findViewById<TextView>(R.id.monitoringStatusText)
+
+        updateLeisureCreditText(leisureCreditText)
 
         val generalButton = findViewById<Button>(R.id.generalButton)
         val distractionButton = findViewById<Button>(R.id.distractionButton)
@@ -74,7 +80,6 @@ class MainActivity : AppCompatActivity() {
         val startServiceMonitoringButton = findViewById<Button>(R.id.startServiceMonitoringButton)
         val stopServiceMonitoringButton = findViewById<Button>(R.id.stopServiceMonitoringButton)
         val testNotificationButton = findViewById<Button>(R.id.testNotificationButton)
-        val monitoringStatusText = findViewById<TextView>(R.id.monitoringStatusText)
 
         val distractionApps = loadDistractionApps()
         updateDistractionListText(distractionListText, distractionApps)
@@ -103,6 +108,7 @@ class MainActivity : AppCompatActivity() {
             startFocusMode(
                 coachMessageText = coachMessageText,
                 timerText = timerText,
+                leisureCreditText = leisureCreditText,
                 modeName = "Quick Reset",
                 durationMillis = 10_000
             )
@@ -112,6 +118,7 @@ class MainActivity : AppCompatActivity() {
             startFocusMode(
                 coachMessageText = coachMessageText,
                 timerText = timerText,
+                leisureCreditText = leisureCreditText,
                 modeName = "Mini Focus",
                 durationMillis = 60_000
             )
@@ -121,6 +128,7 @@ class MainActivity : AppCompatActivity() {
             startFocusMode(
                 coachMessageText = coachMessageText,
                 timerText = timerText,
+                leisureCreditText = leisureCreditText,
                 modeName = "Deep Focus",
                 durationMillis = 25 * 60 * 1000L
             )
@@ -270,9 +278,7 @@ class MainActivity : AppCompatActivity() {
             val packageName = recentPackages.last()
 
             if (distractionApps.contains(packageName)) {
-                val warning = "Distraction detected: $packageName. Close it now."
-                coachMessageText.text = warning
-                notificationHelper.showDisciplineNotification(warning)
+                handleDistractionDetected(packageName, coachMessageText, leisureCreditText)
             } else {
                 coachMessageText.text =
                     "Last external app: $packageName\n\nRecent apps:\n" +
@@ -291,14 +297,14 @@ class MainActivity : AppCompatActivity() {
 
             coachMessageText.text = "Monitoring started. Stay sharp."
             monitoringStatusText.text = "Status: In-app monitoring active"
-            monitoringStatusText.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
+            monitoringStatusText.setTextColor(
+                ContextCompat.getColor(this, android.R.color.holo_green_light)
+            )
 
             distractionMonitorManager.startMonitoring(
                 distractionApps = distractionApps,
                 onDistractionDetected = { packageName ->
-                    val warning = "Distraction detected: $packageName. Close it now."
-                    coachMessageText.text = warning
-                    notificationHelper.showDisciplineNotification(warning)
+                    handleDistractionDetected(packageName, coachMessageText, leisureCreditText)
                 }
             )
         }
@@ -307,7 +313,9 @@ class MainActivity : AppCompatActivity() {
             distractionMonitorManager.stopMonitoring()
             coachMessageText.text = "Monitoring stopped."
             monitoringStatusText.text = "Status: Monitoring stopped"
-            monitoringStatusText.setTextColor(ContextCompat.getColor(this, android.R.color.holo_orange_light))
+            monitoringStatusText.setTextColor(
+                ContextCompat.getColor(this, android.R.color.holo_orange_light)
+            )
         }
 
         startServiceMonitoringButton.setOnClickListener {
@@ -327,7 +335,9 @@ class MainActivity : AppCompatActivity() {
 
             coachMessageText.text = "Background monitoring started."
             monitoringStatusText.text = "Status: Background monitoring active"
-            monitoringStatusText.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
+            monitoringStatusText.setTextColor(
+                ContextCompat.getColor(this, android.R.color.holo_green_light)
+            )
         }
 
         stopServiceMonitoringButton.setOnClickListener {
@@ -336,7 +346,9 @@ class MainActivity : AppCompatActivity() {
 
             coachMessageText.text = "Background monitoring stopped."
             monitoringStatusText.text = "Status: Background monitoring stopped"
-            monitoringStatusText.setTextColor(ContextCompat.getColor(this, android.R.color.holo_orange_light))
+            monitoringStatusText.setTextColor(
+                ContextCompat.getColor(this, android.R.color.holo_orange_light)
+            )
         }
 
         testNotificationButton.setOnClickListener {
@@ -348,10 +360,11 @@ class MainActivity : AppCompatActivity() {
     private fun startFocusMode(
         coachMessageText: TextView,
         timerText: TextView,
+        leisureCreditText: TextView,
         modeName: String,
         durationMillis: Long
     ) {
-        coachMessageText.text = "$modeName started. Hold the line."
+        coachMessageText.text = "$modeName started. Earn your leisure."
 
         focusTimerManager.startTimer(
             modeName = modeName,
@@ -359,12 +372,56 @@ class MainActivity : AppCompatActivity() {
             onTickUpdate = { timeText ->
                 timerText.text = timeText
             },
-            onFinish = { finishMessage ->
-                coachMessageText.text = finishMessage
+            onFinish = {
+                val earnedSeconds = durationMillis / 1000 / 2
+
+                leisureCreditManager.addCredits(earnedSeconds)
+                updateLeisureCreditText(leisureCreditText)
+
+                val earnedText = leisureCreditManager.formatCredits(earnedSeconds)
+
+                val message = "$modeName complete. You earned $earnedText leisure time."
+                coachMessageText.text = message
                 timerText.text = "Timer complete"
-                notificationHelper.showDisciplineNotification(finishMessage)
+                notificationHelper.showDisciplineNotification(message)
             }
         )
+    }
+
+    private fun handleDistractionDetected(
+        packageName: String,
+        coachMessageText: TextView,
+        leisureCreditText: TextView
+    ) {
+        val spendAmountSeconds = 60L
+
+        val hasEnoughCredits = leisureCreditManager.spendCredits(spendAmountSeconds)
+        updateLeisureCreditText(leisureCreditText)
+
+        if (hasEnoughCredits) {
+            val remainingCredits = leisureCreditManager.formatCredits(
+                leisureCreditManager.getCreditsSeconds()
+            )
+
+            val message =
+                "Authorized leisure: $packageName. 1 minute spent. Remaining: $remainingCredits."
+
+            coachMessageText.text = message
+            notificationHelper.showDisciplineNotification(message)
+        } else {
+            val warning =
+                "UNAUTHORIZED DISTRACTION: $packageName. You have no leisure credits. Close it now."
+
+            coachMessageText.text = warning
+            notificationHelper.showDisciplineNotification(warning)
+        }
+    }
+
+    private fun updateLeisureCreditText(leisureCreditText: TextView) {
+        val credits = leisureCreditManager.getCreditsSeconds()
+        val formattedCredits = leisureCreditManager.formatCredits(credits)
+
+        leisureCreditText.text = "🎮 Leisure Credits: $formattedCredits"
     }
 
     private fun showInstalledAppsInList(
