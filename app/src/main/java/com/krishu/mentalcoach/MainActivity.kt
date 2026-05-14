@@ -521,4 +521,11 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         distractionMonitorManager.stopMonitoring()
     }
+
+    override fun onResume() {
+        super.onResume()
+
+        val leisureCreditText = findViewById<TextView>(R.id.leisureCreditText)
+        updateLeisureCreditText(leisureCreditText)
+    }
 }

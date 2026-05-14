@@ -16,6 +16,7 @@ class DistractionMonitoringService : Service() {
     private lateinit var notificationHelper: CoachNotificationHelper
     private lateinit var appUsageMonitor: AppUsageMonitor
     private lateinit var distractionMonitorManager: DistractionMonitorManager
+    private lateinit var leisureCreditManager: LeisureCreditManager
 
     override fun onCreate() {
         super.onCreate()
@@ -25,6 +26,7 @@ class DistractionMonitoringService : Service() {
 
         appUsageMonitor = AppUsageMonitor(this)
         distractionMonitorManager = DistractionMonitorManager(appUsageMonitor)
+        leisureCreditManager = LeisureCreditManager(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -55,7 +57,7 @@ class DistractionMonitoringService : Service() {
         val notification = NotificationCompat.Builder(this, "discipline_alerts")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Mental Coach is active")
-            .setContentText("Monitoring distractions. Stay disciplined.")
+            .setContentText("Monitoring distractions and leisure credits.")
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .addAction(
@@ -79,10 +81,31 @@ class DistractionMonitoringService : Service() {
         distractionMonitorManager.startMonitoring(
             distractionApps = distractionApps,
             onDistractionDetected = { packageName ->
-                val warning = "Distraction detected: $packageName. Close it now."
-                notificationHelper.showDisciplineNotification(warning)
+                handleBackgroundDistractionDetected(packageName)
             }
         )
+    }
+
+    private fun handleBackgroundDistractionDetected(packageName: String) {
+        val spendAmountSeconds = 60L
+
+        val hasEnoughCredits = leisureCreditManager.spendCredits(spendAmountSeconds)
+
+        if (hasEnoughCredits) {
+            val remainingCredits = leisureCreditManager.formatCredits(
+                leisureCreditManager.getCreditsSeconds()
+            )
+
+            val message =
+                "Authorized leisure: $packageName. 1 minute spent. Remaining: $remainingCredits."
+
+            notificationHelper.showDisciplineNotification(message)
+        } else {
+            val warning =
+                "UNAUTHORIZED DISTRACTION: $packageName. You have no leisure credits. yahi krta reh jayega jindagi bhar. bas sapno mein hi jeete reh, chutiye"
+
+            notificationHelper.showDisciplineNotification(warning)
+        }
     }
 
     private fun loadDistractionApps(): MutableList<String> {
