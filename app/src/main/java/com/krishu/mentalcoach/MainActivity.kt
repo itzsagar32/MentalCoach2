@@ -14,10 +14,31 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val coachMessageText = findViewById<TextView>(R.id.coachMessageText)
-        val getOrdersButton = findViewById<Button>(R.id.getOrdersButton)
 
-        getOrdersButton.setOnClickListener {
-            coachMessageText.text = coachMessageGenerator.getRandomCommand()
+        val generalButton = findViewById<Button>(R.id.generalButton)
+        val distractionButton = findViewById<Button>(R.id.distractionButton)
+        val studyButton = findViewById<Button>(R.id.studyButton)
+        val workoutButton = findViewById<Button>(R.id.workoutButton)
+        val emergencyButton = findViewById<Button>(R.id.emergencyButton)
+
+        generalButton.setOnClickListener {
+            coachMessageText.text = coachMessageGenerator.getGeneralCommand()
+        }
+
+        distractionButton.setOnClickListener {
+            coachMessageText.text = coachMessageGenerator.getDistractionWarning()
+        }
+
+        studyButton.setOnClickListener {
+            coachMessageText.text = coachMessageGenerator.getStudyCommand()
+        }
+
+        workoutButton.setOnClickListener {
+            coachMessageText.text = coachMessageGenerator.getWorkoutCommand()
+        }
+
+        emergencyButton.setOnClickListener {
+            coachMessageText.text = coachMessageGenerator.getEmergencyCommand()
         }
     }
 }
