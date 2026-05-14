@@ -6,8 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+
 import android.provider.Settings
 import android.widget.Button
 import android.widget.EditText
@@ -24,10 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var notificationHelper: CoachNotificationHelper
     private lateinit var appUsageMonitor: AppUsageMonitor
-
-    private val monitoringHandler = Handler(Looper.getMainLooper())
-    private var isMonitoring = false
-    private var lastWarnedPackage: String? = null
+    private lateinit var distractionMonitorManager: DistractionMonitorManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         requestNotificationPermissionIfNeeded()
 
         appUsageMonitor = AppUsageMonitor(this)
+        distractionMonitorManager = DistractionMonitorManager(appUsageMonitor)
 
         val coachMessageText = findViewById<TextView>(R.id.coachMessageText)
         val timerText = findViewById<TextView>(R.id.timerText)
@@ -207,18 +204,20 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            isMonitoring = true
-            lastWarnedPackage = null
             coachMessageText.text = "Monitoring started. Stay sharp."
 
-            startAppMonitoringLoop(
-                coachMessageText = coachMessageText,
-                distractionApps = distractionApps
+            distractionMonitorManager.startMonitoring(
+                distractionApps = distractionApps,
+                onDistractionDetected = { packageName ->
+                    val warning = "Distraction detected: $packageName. Close it now."
+                    coachMessageText.text = warning
+                    notificationHelper.showDisciplineNotification(warning)
+                }
             )
         }
 
         stopMonitoringButton.setOnClickListener {
-            stopAppMonitoringLoop()
+            distractionMonitorManager.stopMonitoring()
             coachMessageText.text = "Monitoring stopped."
         }
 
@@ -250,45 +249,8 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun startAppMonitoringLoop(
-        coachMessageText: TextView,
-        distractionApps: List<String>
-    ) {
-        monitoringHandler.removeCallbacksAndMessages(null)
 
-        val monitoringRunnable = object : Runnable {
-            override fun run() {
-                if (!isMonitoring) {
-                    return
-                }
 
-                val packageName = appUsageMonitor.getLastExternalUsedPackageName()
-
-                if (packageName != null && distractionApps.contains(packageName)) {
-                    if (lastWarnedPackage != packageName) {
-                        val warning = "Distraction detected: $packageName. Close it now."
-                        coachMessageText.text = warning
-                        notificationHelper.showDisciplineNotification(warning)
-                        lastWarnedPackage = packageName
-                    }
-                }
-
-                if (packageName != null && !distractionApps.contains(packageName)) {
-                    lastWarnedPackage = null
-                }
-
-                monitoringHandler.postDelayed(this, 5_000)
-            }
-        }
-
-        monitoringHandler.post(monitoringRunnable)
-    }
-
-    private fun stopAppMonitoringLoop() {
-        isMonitoring = false
-        lastWarnedPackage = null
-        monitoringHandler.removeCallbacksAndMessages(null)
-    }
 
     private fun saveDistractionApps(distractionApps: List<String>) {
         val sharedPreferences = getSharedPreferences("mental_coach_prefs", Context.MODE_PRIVATE)
@@ -338,6 +300,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        stopAppMonitoringLoop()
+        distractionMonitorManager.stopMonitoring()
     }
 }
