@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         val startServiceMonitoringButton = findViewById<Button>(R.id.startServiceMonitoringButton)
         val stopServiceMonitoringButton = findViewById<Button>(R.id.stopServiceMonitoringButton)
         val testNotificationButton = findViewById<Button>(R.id.testNotificationButton)
+        val monitoringStatusText = findViewById<TextView>(R.id.monitoringStatusText)
 
         val distractionApps = loadDistractionApps()
         updateDistractionListText(distractionListText, distractionApps)
@@ -289,6 +290,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             coachMessageText.text = "Monitoring started. Stay sharp."
+            monitoringStatusText.text = "Status: In-app monitoring active"
+            monitoringStatusText.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
 
             distractionMonitorManager.startMonitoring(
                 distractionApps = distractionApps,
@@ -303,6 +306,8 @@ class MainActivity : AppCompatActivity() {
         stopMonitoringButton.setOnClickListener {
             distractionMonitorManager.stopMonitoring()
             coachMessageText.text = "Monitoring stopped."
+            monitoringStatusText.text = "Status: Monitoring stopped"
+            monitoringStatusText.setTextColor(ContextCompat.getColor(this, android.R.color.holo_orange_light))
         }
 
         startServiceMonitoringButton.setOnClickListener {
@@ -321,6 +326,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             coachMessageText.text = "Background monitoring started."
+            monitoringStatusText.text = "Status: Background monitoring active"
+            monitoringStatusText.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
         }
 
         stopServiceMonitoringButton.setOnClickListener {
@@ -328,6 +335,8 @@ class MainActivity : AppCompatActivity() {
             stopService(serviceIntent)
 
             coachMessageText.text = "Background monitoring stopped."
+            monitoringStatusText.text = "Status: Background monitoring stopped"
+            monitoringStatusText.setTextColor(ContextCompat.getColor(this, android.R.color.holo_orange_light))
         }
 
         testNotificationButton.setOnClickListener {
