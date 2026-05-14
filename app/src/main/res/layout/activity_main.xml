@@ -171,6 +171,13 @@
             android:text="Save Distraction"
             android:layout_marginTop="8dp" />
 
+        <Button
+            android:id="@+id/removeDistractionButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Remove Distraction"
+            android:layout_marginTop="8dp" />
+
         <TextView
             android:id="@+id/distractionListText"
             android:layout_width="match_parent"

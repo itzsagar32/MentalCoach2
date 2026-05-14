@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         val distractionListText = findViewById<TextView>(R.id.distractionListText)
         val distractionApps = loadDistractionApps()
         updateDistractionListText(distractionListText, distractionApps)
+        val removeDistractionButton = findViewById<Button>(R.id.removeDistractionButton)
 
         saveDistractionButton.setOnClickListener {
             val appName = distractionInput.text.toString().trim()
@@ -63,6 +64,26 @@ class MainActivity : AppCompatActivity() {
                 distractionInput.text.clear()
             } else {
                 coachMessageText.text = "Type an app name first, soldier."
+            }
+        }
+
+        removeDistractionButton.setOnClickListener {
+            val appName = distractionInput.text.toString().trim()
+
+            if (appName.isNotEmpty()) {
+                if (distractionApps.contains(appName)) {
+                    distractionApps.remove(appName)
+                    saveDistractionApps(distractionApps)
+                    updateDistractionListText(distractionListText, distractionApps)
+
+                    coachMessageText.text = "$appName removed from distraction list."
+                } else {
+                    coachMessageText.text = "$appName is not on the distraction list."
+                }
+
+                distractionInput.text.clear()
+            } else {
+                coachMessageText.text = "Type an app name to remove, soldier."
             }
         }
 
