@@ -1,5 +1,6 @@
 package com.krishu.mentalcoach
 
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -7,6 +8,10 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 
 class DistractionMonitoringService : Service() {
+
+    companion object {
+        const val ACTION_STOP_MONITORING = "com.krishu.mentalcoach.STOP_MONITORING"
+    }
 
     private lateinit var notificationHelper: CoachNotificationHelper
     private lateinit var appUsageMonitor: AppUsageMonitor
@@ -23,6 +28,12 @@ class DistractionMonitoringService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        if (intent?.action == ACTION_STOP_MONITORING) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
         startForegroundServiceNotification()
         startMonitoringDistractions()
 
@@ -30,12 +41,28 @@ class DistractionMonitoringService : Service() {
     }
 
     private fun startForegroundServiceNotification() {
+        val stopIntent = Intent(this, DistractionMonitoringService::class.java).apply {
+            action = ACTION_STOP_MONITORING
+        }
+
+        val stopPendingIntent = PendingIntent.getService(
+            this,
+            3001,
+            stopIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
         val notification = NotificationCompat.Builder(this, "discipline_alerts")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Mental Coach is active")
             .setContentText("Monitoring distractions. Stay disciplined.")
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
+            .addAction(
+                R.mipmap.ic_launcher,
+                "Stop",
+                stopPendingIntent
+            )
             .build()
 
         startForeground(2001, notification)
