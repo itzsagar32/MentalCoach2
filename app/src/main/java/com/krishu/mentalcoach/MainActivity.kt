@@ -7,6 +7,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -26,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appUsageMonitor: AppUsageMonitor
     private lateinit var distractionMonitorManager: DistractionMonitorManager
     private lateinit var installedAppReader: InstalledAppReader
+
+    private var allInstalledApps = listOf<InstalledAppInfo>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +62,11 @@ class MainActivity : AppCompatActivity() {
         val removeDistractionButton = findViewById<Button>(R.id.removeDistractionButton)
         val distractionListText = findViewById<TextView>(R.id.distractionListText)
 
+        val appSearchInput = findViewById<EditText>(R.id.appSearchInput)
+        val loadInstalledAppsButton = findViewById<Button>(R.id.loadInstalledAppsButton)
+        val installedAppsText = findViewById<TextView>(R.id.installedAppsText)
+        val installedAppsListView = findViewById<ListView>(R.id.installedAppsListView)
+
         val grantUsageAccessButton = findViewById<Button>(R.id.grantUsageAccessButton)
         val checkCurrentAppButton = findViewById<Button>(R.id.checkCurrentAppButton)
         val startMonitoringButton = findViewById<Button>(R.id.startMonitoringButton)
@@ -65,10 +74,6 @@ class MainActivity : AppCompatActivity() {
         val startServiceMonitoringButton = findViewById<Button>(R.id.startServiceMonitoringButton)
         val stopServiceMonitoringButton = findViewById<Button>(R.id.stopServiceMonitoringButton)
         val testNotificationButton = findViewById<Button>(R.id.testNotificationButton)
-
-        val loadInstalledAppsButton = findViewById<Button>(R.id.loadInstalledAppsButton)
-        val installedAppsText = findViewById<TextView>(R.id.installedAppsText)
-        val installedAppsListView = findViewById<ListView>(R.id.installedAppsListView)
 
         val distractionApps = loadDistractionApps()
         updateDistractionListText(distractionListText, distractionApps)
@@ -168,9 +173,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         loadInstalledAppsButton.setOnClickListener {
-            val installedApps = installedAppReader.getInstalledApps()
+            allInstalledApps = installedAppReader.getInstalledApps()
 
-            if (installedApps.isEmpty()) {
+            if (allInstalledApps.isEmpty()) {
                 installedAppsText.text = "No installed apps found."
                 coachMessageText.text = "Could not load installed apps."
                 return@setOnClickListener
@@ -178,46 +183,63 @@ class MainActivity : AppCompatActivity() {
 
             installedAppsText.text = "Tap an app below to add it to your distraction list."
 
-            val appDisplayList = installedApps.map { app ->
-                "${app.appName}\n${app.packageName}"
-            }
-
-            val adapter = ArrayAdapter(
-                this,
-                android.R.layout.simple_list_item_1,
-                appDisplayList
+            showInstalledAppsInList(
+                installedAppsListView = installedAppsListView,
+                appsToShow = allInstalledApps,
+                distractionApps = distractionApps,
+                distractionListText = distractionListText,
+                coachMessageText = coachMessageText
             )
 
-            installedAppsListView.adapter = adapter
-
-            installedAppsListView.setOnItemClickListener { _, _, position, _ ->
-                val selectedApp = installedApps[position]
-                val packageName = selectedApp.packageName
-
-                if (!distractionApps.contains(packageName)) {
-                    distractionApps.add(packageName)
-                    saveDistractionApps(distractionApps)
-                    updateDistractionListText(distractionListText, distractionApps)
-
-                    coachMessageText.text = "${selectedApp.appName} added to distraction list."
-
-                    Toast.makeText(
-                        this,
-                        "Added: ${selectedApp.appName}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    coachMessageText.text =
-                        "${selectedApp.appName} is already on the distraction list."
-
-                    Toast.makeText(
-                        this,
-                        "Already added",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
+            coachMessageText.text = "Installed apps loaded. Use search to filter the list."
         }
+
+        appSearchInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+                // Not needed
+            }
+
+            override fun onTextChanged(
+                s: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+                val query = s.toString().trim().lowercase()
+
+                if (allInstalledApps.isEmpty()) {
+                    return
+                }
+
+                val filteredApps = if (query.isEmpty()) {
+                    allInstalledApps
+                } else {
+                    allInstalledApps.filter { app ->
+                        app.appName.lowercase().contains(query) ||
+                                app.packageName.lowercase().contains(query)
+                    }
+                }
+
+                showInstalledAppsInList(
+                    installedAppsListView = installedAppsListView,
+                    appsToShow = filteredApps,
+                    distractionApps = distractionApps,
+                    distractionListText = distractionListText,
+                    coachMessageText = coachMessageText
+                )
+
+                installedAppsText.text = "Showing ${filteredApps.size} matching apps."
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // Not needed
+            }
+        })
 
         grantUsageAccessButton.setOnClickListener {
             val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
@@ -334,6 +356,53 @@ class MainActivity : AppCompatActivity() {
                 notificationHelper.showDisciplineNotification(finishMessage)
             }
         )
+    }
+
+    private fun showInstalledAppsInList(
+        installedAppsListView: ListView,
+        appsToShow: List<InstalledAppInfo>,
+        distractionApps: MutableList<String>,
+        distractionListText: TextView,
+        coachMessageText: TextView
+    ) {
+        val appDisplayList = appsToShow.map { app ->
+            "${app.appName}\n${app.packageName}"
+        }
+
+        val adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_list_item_1,
+            appDisplayList
+        )
+
+        installedAppsListView.adapter = adapter
+
+        installedAppsListView.setOnItemClickListener { _, _, position, _ ->
+            val selectedApp = appsToShow[position]
+            val packageName = selectedApp.packageName
+
+            if (!distractionApps.contains(packageName)) {
+                distractionApps.add(packageName)
+                saveDistractionApps(distractionApps)
+                updateDistractionListText(distractionListText, distractionApps)
+
+                coachMessageText.text = "${selectedApp.appName} added to distraction list."
+
+                Toast.makeText(
+                    this,
+                    "Added: ${selectedApp.appName}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                coachMessageText.text = "${selectedApp.appName} is already on the distraction list."
+
+                Toast.makeText(
+                    this,
+                    "Already added",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     private fun saveDistractionApps(distractionApps: List<String>) {

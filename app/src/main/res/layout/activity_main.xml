@@ -143,6 +143,17 @@
             android:text="Cancel Timer"
             android:layout_marginTop="8dp" />
 
+        <EditText
+            android:id="@+id/appSearchInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Search installed apps"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#8A8A8A"
+            android:backgroundTint="#BDBDBD"
+            android:singleLine="true"
+            android:layout_marginTop="12dp" />
+
         <Button
             android:id="@+id/loadInstalledAppsButton"
             android:layout_width="match_parent"
