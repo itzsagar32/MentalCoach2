@@ -9,6 +9,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import android.widget.EditText
+import android.content.Context
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,6 +40,31 @@ class MainActivity : AppCompatActivity() {
         val miniFocusButton = findViewById<Button>(R.id.miniFocusButton)
         val deepFocusButton = findViewById<Button>(R.id.deepFocusButton)
         val cancelTimerButton = findViewById<Button>(R.id.cancelTimerButton)
+        val distractionInput = findViewById<EditText>(R.id.distractionInput)
+        val saveDistractionButton = findViewById<Button>(R.id.saveDistractionButton)
+        val distractionListText = findViewById<TextView>(R.id.distractionListText)
+        val distractionApps = loadDistractionApps()
+        updateDistractionListText(distractionListText, distractionApps)
+
+        saveDistractionButton.setOnClickListener {
+            val appName = distractionInput.text.toString().trim()
+
+            if (appName.isNotEmpty()) {
+                if (!distractionApps.contains(appName)) {
+                    distractionApps.add(appName)
+                    saveDistractionApps(distractionApps)
+                    updateDistractionListText(distractionListText, distractionApps)
+
+                    coachMessageText.text = "$appName added to distraction list."
+                } else {
+                    coachMessageText.text = "$appName is already on the distraction list."
+                }
+
+                distractionInput.text.clear()
+            } else {
+                coachMessageText.text = "Type an app name first, soldier."
+            }
+        }
 
         generalButton.setOnClickListener {
             coachMessageText.text = coachMessageGenerator.getGeneralCommand()
@@ -119,6 +146,35 @@ class MainActivity : AppCompatActivity() {
                 notificationHelper.showDisciplineNotification(finishMessage)
             }
         )
+    }
+
+    private fun saveDistractionApps(distractionApps: List<String>) {
+        val sharedPreferences = getSharedPreferences("mental_coach_prefs", Context.MODE_PRIVATE)
+
+        sharedPreferences.edit()
+            .putStringSet("distraction_apps", distractionApps.toSet())
+            .apply()
+    }
+
+    private fun loadDistractionApps(): MutableList<String> {
+        val sharedPreferences = getSharedPreferences("mental_coach_prefs", Context.MODE_PRIVATE)
+
+        val savedSet = sharedPreferences.getStringSet("distraction_apps", emptySet())
+
+        return savedSet?.toMutableList() ?: mutableListOf()
+    }
+
+    private fun updateDistractionListText(
+        distractionListText: TextView,
+        distractionApps: List<String>
+    ) {
+        if (distractionApps.isEmpty()) {
+            distractionListText.text = "No distractions saved yet."
+        } else {
+            distractionListText.text = distractionApps.joinToString(separator = "\n") { app ->
+                "• $app"
+            }
+        }
     }
 
     private fun requestNotificationPermissionIfNeeded() {
